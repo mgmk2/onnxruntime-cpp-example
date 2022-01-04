@@ -11,9 +11,16 @@ set(ONNXRUNTIME_STATIC ON)
 
 add_executable(ONNXRuntimeResnet cpp/main.cpp)
 
+target_compile_options(
+    ONNXRuntimeResnet
+PRIVATE
+    /source-charset:utf-8
+)
+
 target_include_directories(
     ONNXRuntimeResnet
 PRIVATE
+    external/cxxopts/include
     $ENV{ONNXRUNTIME_ROOT}/include
 )
 
