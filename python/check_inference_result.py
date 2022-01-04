@@ -16,30 +16,30 @@ if __name__ == '__main__':
     image_filename = os.path.normpath(args.input)
     label_filename = os.path.normpath(args.label)
 
-    # 画像の読み込み
+    # load image
     assert os.path.exists(image_filename)
     image = Image.open(image_filename)
 
     assert image.height == 224 and image.width == 224
 
-    # ラベルの読み込み
+    # load labels
     with open(label_filename, mode='r') as f:
         labels = [s.strip() for s in f.readlines()]
 
-    # モデルの読み込み
+    # load model
     model = get_pytorch_model()
     model.eval()
 
-    # 画像の前処理
+    # preprocess image
     input_tensor = torchvision.transforms.functional.to_tensor(image)  # [0,1]に変換
     input_tensor = input_tensor.unsqueeze(0)  # CHW -> BCHW
 
-    # 推論を実行
+    # run inference
     with torch.no_grad():
         results = model(input_tensor)
         result = results[0].numpy().copy()
 
-    # Top5を表示
+    # show Top5
     indices = np.argsort(result)[::-1]
     for i in range(5):
         index = indices[i]

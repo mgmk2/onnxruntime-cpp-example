@@ -7,12 +7,12 @@ from PIL import Image
 
 
 def save_image_sample(output_dir: str):
-    # 画像をダウンロード
+    # donwload image
     filename = os.path.join(output_dir, 'dog.jpg')
     torch.hub.download_url_to_file(
         'https://github.com/pytorch/hub/raw/master/images/dog.jpg', filename)
 
-    # 224x224サイズに編集して別途保存
+    # save 224x224 resized image
     image = Image.open(filename)
     image = torchvision.transforms.functional.resize(image, size=256)
     image = torchvision.transforms.functional.center_crop(image, output_size=224)
@@ -26,10 +26,10 @@ def save_imagenet_label(output_dir: str):
 
 
 def get_pytorch_model():
-    # ResNet50の学習済みモデルをロード
+    # load pretrained ResNet50 model
     model = torch.hub.load('pytorch/vision:v0.10.0', 'resnet50', pretrained=True)
 
-    # 正規化処理とSoftmaxをモデルに連結して新しいモデルを作成
+    # create new model by concat normalization, model and softmax.
     return torch.nn.Sequential(
         torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         model,
@@ -38,13 +38,13 @@ def get_pytorch_model():
 
 
 def save_model(output_dir: str):
-    # 変換するモデルを取得
+    # get pytorch model
     model = get_pytorch_model()
 
-    # ダミーの入力
+    # define dummy input
     dummy_input = torch.randn(1, 3, 224, 224)
 
-    # ONNXフォーマットに変換して出力
+    # convert and save ONNX format model
     filename = os.path.join(output_dir, 'resnet50.onnx')
     torch.onnx.export(
         model,
