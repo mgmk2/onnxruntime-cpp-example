@@ -1,79 +1,102 @@
 cmake_minimum_required(VERSION 3.15)
-project(ONNXRuntimeResnet VERSION 0.1.0)
+project(ORTResnet VERSION 0.1.0)
 
 cmake_policy(SET CMP0048 NEW)
+
 cmake_policy(SET CMP0091 NEW)
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(ONNXRUNTIME_STATIC ON)
+option(ORT_STATIC "Use ONNXRuntime static library." OFF)
 
-add_executable(ONNXRuntimeResnet cpp/main.cpp)
+# check ORT_ROOT existance
+if (NOT ORT_ROOT)
+    message(FATAL_ERROR "ORT_ROOT must be set")
+endif()
 
-target_compile_options(
-    ONNXRuntimeResnet
-PRIVATE
-    /source-charset:utf-8
-)
+get_filename_component(ORT_ROOT_ABS ${ORT_ROOT} ABSOLUTE)
+if (EXISTS ${ORT_ROOT_ABS})
+    message(STATUS "ONNXRuntime directory: ${ORT_ROOT}")
+else()
+    message(FATAL_ERROR "ORT_ROOT does not exists: ${ORT_ROOT}")
+endif()
 
-target_include_directories(
-    ONNXRuntimeResnet
-PRIVATE
-    external/cxxopts/include
-    $ENV{ONNXRUNTIME_ROOT}/include
-)
+# define target
+add_executable(ORTResnet cpp/main.cpp)
 
-if(ONNXRUNTIME_STATIC)
-    target_link_directories(
-        ONNXRuntimeResnet
+if(MSVC)
+    target_compile_options(
+        ORTResnet
     PRIVATE
-        $ENV{ONNXRUNTIME_ROOT}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/static
-        $ENV{ONNXRUNTIME_ROOT}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/static/external
+        /source-charset:utf-8
+    )
+endif()
+
+# ONNXRuntime
+target_include_directories(
+    ORTResnet
+PRIVATE
+    ${ORT_ROOT}/include
+)
+
+message(STATUS "ONNXRuntime STATIC: ${ORT_STATIC}")
+
+if(ORT_STATIC)
+    target_link_directories(
+        ORTResnet
+    PRIVATE
+        ${ORT_ROOT}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/static
+        ${ORT_ROOT}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/static/external
     )
 
     target_link_libraries(
-        ONNXRuntimeResnet
+        ORTResnet
     PRIVATE
-        onnxruntime_session.lib
-        onnxruntime_optimizer.lib
-        onnxruntime_providers.lib
-        onnxruntime_util.lib
-        onnxruntime_framework.lib
-        onnxruntime_graph.lib
-        onnxruntime_mlas.lib
-        onnxruntime_common.lib
-        onnxruntime_flatbuffers.lib
-        onnx.lib
-        onnx_proto.lib
-        libprotobuf-lite$<$<CONFIG:Debug>:d>.lib
-        re2.lib
-        flatbuffers.lib
-        cpuinfo.lib
-        clog.lib
+        onnxruntime_session
+        onnxruntime_optimizer
+        onnxruntime_providers
+        onnxruntime_util
+        onnxruntime_framework
+        onnxruntime_graph
+        onnxruntime_mlas
+        onnxruntime_common
+        onnxruntime_flatbuffers
+        onnx
+        onnx_proto
+        libprotobuf-lite$<$<CONFIG:Debug>:d>
+        re2
+        flatbuffers
+        cpuinfo
+        clog
         
-        $<$<CONFIG:Debug>:Dbghelp.lib>
+        $<$<AND:$<PLATFORM_ID:Windows>,$<CONFIG:Debug>>:Dbghelp>
     )
 
 else()
     target_link_directories(
-        ONNXRuntimeResnet
+        ORTResnet
     PRIVATE
-        $ENV{ONNXRUNTIME_ROOT}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/shared
+        ${ORT_ROOT}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/shared
     )
     
     target_link_libraries(
-        ONNXRuntimeResnet
+        ORTResnet
     PRIVATE
-        onnxruntime.lib
-        $<$<CONFIG:Debug>:Dbghelp.lib>
+        onnxruntime
     )
 endif()
 
+# cxxopts
+target_include_directories(
+    ORTResnet
+PRIVATE
+    external/cxxopts/include
+)
+
 # OpenCV
-set(OpenCV_STATIC ON)
-set(CMAKE_MODULE_PATH $ENV{OPENCV_ROOT})
+set(OpenCV_STATIC OFF)
 find_package(OpenCV REQUIRED)
 
-target_include_directories(ONNXRuntimeResnet PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(ONNXRuntimeResnet PRIVATE ${OpenCV_LIBS})
+target_include_directories(ORTResnet PRIVATE ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(ORTResnet PRIVATE ${OpenCV_LIBS})
