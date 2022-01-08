@@ -170,7 +170,7 @@ int main(int argc, char** argv)
     Ort::RunOptions runOptions;
 
     // create session
-    // we should catch exception...
+    // We should catch exception...
     Ort::Session session(nullptr);
     try {
         session = Ort::Session(env, modelFile.data(), sessionOptions);
@@ -185,14 +185,14 @@ int main(int argc, char** argv)
     const std::array<int64_t, 2> outputShape = { 1, numClasses };
 
     // define I/O array
-    // we can use std::vector instead of std::array
+    // We can use std::vector instead of std::array.
     std::array<float, numInputElements> input;
     std::array<float, numClasses> results;
 
     // define I/O Tensor
-    // it holds the array pointer internally
-    // DON'T delete array while the Tensor alive
-    // if use std::vector, DON'T reallocate memory after creating the Tensor
+    // It holds the array pointer internally.
+    // DON'T delete array while the Tensor alive.
+    // If use std::vector, DON'T reallocate memory after creating the Tensor.
     auto memory_info = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
     auto inputTensor = Ort::Value::CreateTensor<float>(memory_info, input.data(), input.size(), inputShape.data(), inputShape.size());
     auto outputTensor = Ort::Value::CreateTensor<float>(memory_info, results.data(), results.size(), outputShape.data(), outputShape.size());
@@ -205,8 +205,8 @@ int main(int argc, char** argv)
     const std::array<const char*, 1> outputNames = { "output0" };
 
     /*
-    // we can get I/O names from model data
-    // be careful to the order of I/O
+    // We can get I/O names from model data.
+    // Be careful to the order of I/O.
     std::vector<const char*> inputNames;
     std::vector<const char*> outputNames;
 
