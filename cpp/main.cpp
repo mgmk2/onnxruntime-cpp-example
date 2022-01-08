@@ -86,7 +86,12 @@ std::vector<float> loadImage(const std::string& filename)
     }
 
     // convert from BGR to RGB
-    cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+    try {
+        cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+    }
+    catch (cv::Exception&) {
+        return {};
+    }
 
     // reshape to 1D
     image = image.reshape(1, 1);
