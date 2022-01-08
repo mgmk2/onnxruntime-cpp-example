@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 
 struct ParseResult {
     bool isOk{ true };
-    bool isHelp{ false };
+    bool showHelp{ false };
     fs::path imageFile;
     fs::path labelFile;
     fs::path modelFile;
@@ -44,7 +44,7 @@ ParseResult parseArgments(int argc, char** argv)
 
     if (result.count("help")) {
         std::cout << options.help() << std::endl;
-        parseResult.isHelp = true;
+        parseResult.showHelp = true;
         return parseResult;
     }
 
@@ -124,7 +124,7 @@ std::vector<std::string> loadLabels(const std::string& filename)
 int main(int argc, char** argv)
 {
     const auto parseResult = parseArgments(argc, argv);
-    if (parseResult.isHelp) {
+    if (parseResult.showHelp) {
         return 0;
     }
     if (!parseResult.isOk) {
