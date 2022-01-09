@@ -3,12 +3,22 @@ project(ORTResnet VERSION 0.1.0)
 
 cmake_policy(SET CMP0048 NEW)
 
+option(USE_DIST_ORT "Use distributed ONNXRuntime." OFF)
+option(ORT_STATIC "Use ONNXRuntime static library." OFF)
+
 cmake_policy(SET CMP0091 NEW)
-set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
+
+message(STATUS "Use distributed ONNXRuntime: ${USE_DIST_ORT}")
+if (USE_DIST_ORT)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
+    if (ORT_STATIC)
+        message(FATAL_ERROR "ONNXRuntime static library is not provided in the distributed.")
+    endif()
+else()
+    set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
-
-option(ORT_STATIC "Use ONNXRuntime static library." OFF)
 
 # check ORT_ROOT existance
 if (NOT ORT_ROOT)
@@ -38,6 +48,7 @@ target_include_directories(
     ORTResnet
 PRIVATE
     ${ORT_ROOT}/include
+    ${ORT_ROOT}/include/onnxruntime/core/session
 )
 
 message(STATUS "ONNXRuntime STATIC: ${ORT_STATIC}")
@@ -77,6 +88,7 @@ else()
     target_link_directories(
         ORTResnet
     PRIVATE
+        ${ORT_ROOT}/lib
         ${ORT_ROOT}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/shared
     )
     
