@@ -50,6 +50,8 @@ build.sh --config Debug --build_shared_lib --parallel
 build.sh --config Release --build_shared_lib --parallel
 ```
 
+More information about building ONNXRuntime can be found at [official docs][ortbuildurl].
+
 After build and test, place libraries like below:
 
 ```
@@ -83,6 +85,8 @@ ${ORT_ROOT}
     :
 ```
 
+[ortbuildurl]: https://onnxruntime.ai/docs/build/
+
 ### Download Resources
 Before you build the application, you have to output resources like ResNet50 model of ONNX format, imagenet labels and a test image.
 
@@ -114,3 +118,8 @@ To validate results, run `python/check_inference_result.py` and compare to appli
 ```
 python python/check_inference_result.py -i resource/dog_input.png -l resource/imagenet_classes.txt
 ```
+
+## License
+This project is licensed under the [MIT License][licenseurl].
+
+[licenseurl]: https://github.com/mgmk2/onnxruntime-cpp-example/blob/main/LICENSE
