@@ -46,8 +46,8 @@ build.bat --config Debug --build_shared_lib --parallel
 build.bat --config Release --build_shared_lib --parallel
 
 # else
-build.sh --config Debug --build_shared_lib --parallel
-build.sh --config Release --build_shared_lib --parallel
+./build.sh --config Debug --build_shared_lib --parallel
+./build.sh --config Release --build_shared_lib --parallel
 ```
 
 More information about building ONNXRuntime can be found at [official docs][ortbuildurl].
